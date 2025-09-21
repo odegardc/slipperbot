@@ -2,7 +2,7 @@ const slippyPhrases = [
     "soon", "ina bit", "in a bit", "few mins", "min", "later", "be on later", "be back later", "1sec", "1 sec"
 ]
 const relativeRegex = /\b(\d{1,3})\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes)?\b/;
-const absoluteRegex = /\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i;
+const absoluteRegex = /\bat\s+(\d{1,2})(?:(?::|\s)(\d{2}))?(?:ish)?\b/i;
 
 function parseSlippyTime(content){
     content = content.toLowerCase();
@@ -13,12 +13,18 @@ function parseSlippyTime(content){
     }
 
     // Absolute Slippy Time
-    
+    const absoluteMatch = absoluteRegex.exec(content);
+    if(absoluteMatch){
+        const hour = parseInt(absoluteMatch[1]);
+        const minute = parseInt(absoluteMatch[2])
+
+        return { type: 'absolute', hour: hour, minute: minute};
+    }
 
     // Relative Slippy Time
-    relativeMatch = relativeRegex.exec(content);
+    const relativeMatch = relativeRegex.exec(content);
     if(relativeMatch){
-        const number = parseInt(match[1]);
+        const number = parseInt(relativeMatch[1]);
         const rawUnit = relativeMatch[2]?.toLowerCase() || 'minutes';
 
         let unit = 'minutes';

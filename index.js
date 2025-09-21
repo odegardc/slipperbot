@@ -81,10 +81,20 @@ client.on("messageCreate", async (message) => {
         if(paresedMessage){
             switch(paresedMessage.type){
                 case "vague":
-                    message.reply("WORKED!!!");
+                    message.reply("vague!!!");
+                    console.log(paresedMessage.phrase)
+                    return;
+                case "absolute":
+                    message.reply("absolute!!!");
+                    console.log(paresedMessage.hour, paresedMessage.minute)
+                    return;
+                case "relative":
+                    message.reply("relative!!!");
+                    console.log(paresedMessage.number, paresedMessage.unit)
                     return;
             }
         }
+        
     } else if((message.mentions.users.size > 0 || message.mentions.roles.size > 0)){
         previousMessageIsMention = true;
         console.log("Previous message is mention?", previousMessageIsMention);
