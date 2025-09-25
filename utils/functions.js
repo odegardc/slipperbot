@@ -1,5 +1,4 @@
 const { spawn } = require("child_process");
-const { timeStamp } = require("console");
 
 const slippyPhrases = [
     "soon", "ina bit", "in a bit", "few mins", "min", "later", "be on later", "be back later", "1sec", "1 sec"
@@ -14,9 +13,23 @@ function parseSlippyTime(content, messageTimestamp) {
     const absoluteMatch = absoluteRegex.exec(content);
     if (absoluteMatch) {
         const hour = parseInt(absoluteMatch[1]);
-        const minute = parseInt(absoluteMatch[2])
+        const minute = parseInt(absoluteMatch[2]);
+        const baseDate = new Date(messageTimestamp);
+        const expectedDate = new Date(baseDate);
 
-        return { type: 'absolute', hour: hour, minute: minute, timeStamp: messageTimestamp };
+        expectedDate.setHours(hour);
+        expectedDate.setMinutes(minute ?? 0);
+        expectedDate.setSeconds(0);
+        expectedDate.setMilliseconds(0);
+
+        const expectedTime = expectedDate.getTime();
+
+        return {
+            type: 'absolute', 
+            messageTime: messageTimestamp, 
+            expectedTime: expectedTime, 
+            message: content 
+        };
     }
 
     // Relative Slippy Time
@@ -25,21 +38,33 @@ function parseSlippyTime(content, messageTimestamp) {
         const number = parseInt(relativeMatch[1]);
         const rawUnit = relativeMatch[2]?.toLowerCase() || 'minutes';
 
-        let unit = 'minutes';
-        if (['h', 'hr', 'hrs', 'hour', 'hours'].includes(rawUnit)) unit = 'hours';
+        let multiplier = 60 * 1000; // default minutes
+        if (['h', 'hr', 'hrs', 'hour', 'hours'].includes(rawUnit)) multiplier = 60 * 60 * 1000;
 
-        return { type: 'relative', number, unit, timeStamp: messageTimestamp };
+        // add the offset
+        const expectedTime = messageTimestamp + number * multiplier;
+
+        return { 
+            type: 'relative', 
+            messageTime: messageTimestamp,
+            expectedTime: expectedTime, 
+            message: content
+        };
     }
 
-    // Vauge Slippy Time
     // Vague Slippy Time
     for (const phrase of slippyPhrases) {
         if (content.includes(phrase)) {
-            return { type: "vague", phrase, timeStamp: messageTimestamp };
+            return {
+                type: "vague", 
+                messageTime: messageTimestamp, 
+                message: content 
+            };
         }
     }
     return;
 }
+
 // Caller function for updateSlippyDB
 async function callUpdateSlippyDB(slippyInstance) {
     try {
