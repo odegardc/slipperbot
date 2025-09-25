@@ -79,21 +79,21 @@ client.on("messageCreate", async (message) => {
         if (paresedMessage) {
             switch (paresedMessage.type) {
                 case "vague":
-                    console.log("Found Vague Slippy Time", paresedMessage.phrase);
+                    console.log("Found Vague Slippy Time");
                     slippyPromises.set(slippyId, {
                         timestamp: Date.now(),
                         slippyTime: paresedMessage
                     });
                     return;
                 case "absolute":
-                    console.log("Found Absolute Slippy Time", paresedMessage.hour, paresedMessage.minute);
+                    console.log("Found Absolute Slippy Time");
                     slippyPromises.set(slippyId, {
                         timestamp: Date.now(),
                         slippyTime: paresedMessage
                     });
                     return;
                 case "relative":
-                    console.log("Found Relative Slippy Time", paresedMessage.number, paresedMessage.unit);
+                    console.log("Found Relative Slippy Time");
                     slippyPromises.set(slippyId, {
                         timestamp: Date.now(),
                         slippyTime: paresedMessage
